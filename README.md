@@ -45,19 +45,24 @@ Uploading to Google Photos requires an authentication file.
 
 ## Running the Script
 
-The script requires both an **input path (`--input_path`)** and an **output path (`--output_path`)**.
+The script requires an **input path (`--input_path`)**. The **output path (`--output_path`)** is optional. If `--output_path` is not provided, a new folder named `[INPUT_FOLDER_NAME]_encoded` will be created in the same directory as the input folder.
 
 ### Command Structure
 
 Use the following command structure:
 
-`python video_converter.py --input_path [SOURCE_FOLDER_PATH] --output_path [DESTINATION_FOLDER_PATH]`
+`python main.py --input_path [SOURCE_FOLDER_PATH] [--output_path [DESTINATION_FOLDER_PATH]] [--gpu]`
 
 ### Example (WSL/Linux)
 
 For example, on WSL or Linux systems:
 
-`python video_converter.py --input_path /mnt/c/Users/User/Videos/Original --output_path /mnt/d/H265_Backup`
+`python main.py --input_path /mnt/c/Users/User/Videos/Original --output_path /mnt/d/H265_Backup --gpu`
+
+Or, using the default output path:
+
+`python main.py --input_path /mnt/c/Users/User/Videos/Original`
+(This will create `/mnt/c/Users/User/Videos/Original_encoded`)
 
 ### First Run Authentication
 
@@ -65,16 +70,19 @@ On the first execution, a web browser will open requesting your Google account l
 
 ---
 
-## Configuration (`video_converter.py` internal)
+## Configuration (`encoder.py` internal)
 
-You can customize the encoding settings at the top of the script file.
+You can customize the encoding settings at the top of the `encoder.py` file.
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `CRF_VALUE` | `20` | CRF value (Lower = Higher quality/Larger size. 18-24 is recommended.) |
-| `PRESET` | "medium" | Encoding speed vs. efficiency trade-off. |
+| `DEFAULT_CRF_VALUE` | `20` | CRF value for CPU (libx265) encoding. (Lower = Higher quality/Larger size. 18-24 is recommended.) |
+| `DEFAULT_PRESET` | "medium" | Encoding speed vs. efficiency trade-off for CPU (libx265) encoding. |
+| `NVENC_CQP_VALUE` | `23` | CQP value for GPU (NVENC) encoding. (Similar to CRF 20, requires testing.) |
+| `NVENC_PRESET` | "medium" | Encoding speed vs. efficiency trade-off for GPU (NVENC) encoding. |
 | `AUDIO_BITRATE` | "192k" | Audio quality (using AAC codec). |
 | `FFMPEG_PATH` | "ffmpeg" | Path to the FFmpeg executable. |
+| `FFPROBE_PATH` | "ffprobe" | Path to the FFprobe executable. |
 
 ---
 
@@ -96,4 +104,7 @@ You can customize the encoding settings at the top of the script file.
 2.  **인증 파일 준비:** Google Cloud에서 발급받은 `client_secret.json`을 스크립트 폴더에 저장합니다.
 3.  **실행 명령어:**
     
-    `python video_converter.py --input_path [원본_폴더_경로] --output_path [결과_폴더_경로]`
+    `python main.py --input_path [원본_폴더_경로] [--output_path [결과_폴더_경로]] [--gpu]`
+    
+    `--output_path`를 지정하지 않으면, `[원본_폴더_경로]`와 동일한 위치에 `[원본_폴더_이름]_encoded` 폴더가 생성됩니다.
+    `--gpu` 옵션을 사용하면 NVIDIA NVENC (hevc_nvenc) GPU 가속 인코딩을 사용합니다.
